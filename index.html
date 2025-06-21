@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroScan - Análise Double</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #ffffff;
+      --secondary-color: #c0c0c0;
+      --background-color: #1a1a2e;
+      --card-background: rgba(46, 49, 72, 0.7);
+      --blur-intensity: 8px;
+      --button-red-color: #ff3b30;
+      --button-red-shadow: #c00000;
+      --button-black-color: #333333;
+      --button-black-shadow: #1a1a1a;
+      --button-white-color: #f0f0f0;
+      --button-white-shadow: #a0a0a0;
+      --button-control: #6c757d; 
+      --button-control-shadow: #495057;
+      --button-control-hover: #5a6268;
+      --text-glow: 0 0 5px rgba(255, 255, 255, 0.3), 0 0 10px rgba(255, 255, 255, 0.2);
+      --pattern-entry-red: #ff6b6b;
+      --pattern-entry-black: #9e9e9e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', sans-serif; color: var(--primary-color);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 20px; position: relative; min-height: 100vh;
+      background-color: var(--background-color); overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: url('https://images4.alphacoders.com/129/thumb-1920-1299861.jpg') no-repeat center center;
+      background-size: cover;
+      filter: blur(var(--blur-intensity)) brightness(0.6);
+      z-index: -2;
+      animation: backgroundZoom 60s infinite alternate ease-in-out;
+    }
+    
+    @keyframes backgroundZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    .main-container {
+        width: 100%; max-width: 700px; display: flex; flex-direction: column;
+        align-items: center; gap: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 20px;
+      text-shadow: var(--text-glow), 0 0 15px rgba(76, 175, 80, 0.5);
+      animation: pulseTitle 3s infinite alternate;
+    }
+    @keyframes pulseTitle {
+      0% { text-shadow: var(--text-glow), 0 0 15px rgba(76, 175, 80, 0.5); opacity: 0.9;}
+      100% { text-shadow: var(--text-glow), 0 0 25px rgba(76, 175, 80, 0.8), 0 0 5px rgba(255,255,255,0.7); opacity: 1;}
+    }
+
+    .glass-card {
+      background: var(--card-background); backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px); border-radius: 15px;
+      padding: 20px; width: 95%; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    #colorInputContainer { width: 100%; }
+    #colorInput {
+      width: 100%; padding: 12px 15px; font-size: 16px; line-height: 1.5; 
+      border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px;
+      box-sizing: border-box; background-color: rgba(0, 0, 0, 0.3);
+      color: var(--primary-color); transition: all 0.3s ease; font-family: 'Poppins', Arial, sans-serif; 
+    }
+    #colorInput:focus { outline: none; border-color: var(--button-red-color); box-shadow: 0 0 10px rgba(var(--button-red-color), 0.5); }
+
+    #buttonContainer { display: flex; justify-content: space-around; gap: 10px; width: 100%; }
+    #buttonContainer button {
+      flex-grow: 1; padding: 12px 10px; font-size: 20px; font-weight: bold; border: none;
+      border-radius: 10px; cursor: pointer; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      transition: all 0.2s ease-out; position: relative;
+    }
+     #buttonContainer button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+     #buttonContainer button:active:not(:disabled) { transform: translateY(2px); filter: brightness(0.9); }
+     #buttonContainer button:disabled { cursor: not-allowed; opacity: 0.6; filter: grayscale(50%); }
+
+    #redButton { 
+        background: linear-gradient(145deg, #ff4d4d, var(--button-red-color)); 
+        box-shadow: 0 4px 0 var(--button-red-shadow), 0 6px 10px rgba(0,0,0,0.3);
+    }
+    #redButton:hover:not(:disabled) { box-shadow: 0 6px 0 var(--button-red-shadow), 0 8px 15px rgba(0,0,0,0.4); }
+    #redButton:active:not(:disabled) { box-shadow: 0 2px 0 var(--button-red-shadow), 0 3px 5px rgba(0,0,0,0.2); }
+
+    #blackButton { 
+        background: linear-gradient(145deg, #4c4c4c, var(--button-black-color)); 
+        box-shadow: 0 4px 0 var(--button-black-shadow), 0 6px 10px rgba(0,0,0,0.3);
+    }
+    #blackButton:hover:not(:disabled) { box-shadow: 0 6px 0 var(--button-black-shadow), 0 8px 15px rgba(0,0,0,0.4); }
+    #blackButton:active:not(:disabled) { box-shadow: 0 2px 0 var(--button-black-shadow), 0 3px 5px rgba(0,0,0,0.2); }
+
+    #whiteButton { 
+        background: linear-gradient(145deg, #ffffff, var(--button-white-color)); 
+        box-shadow: 0 4px 0 var(--button-white-shadow), 0 6px 10px rgba(0,0,0,0.3);
+        color: #333; text-shadow: 1px 1px 1px rgba(255,255,255,0.5);
+    }
+    #whiteButton:hover:not(:disabled) { box-shadow: 0 6px 0 var(--button-white-shadow), 0 8px 15px rgba(0,0,0,0.4); }
+    #whiteButton:active:not(:disabled) { box-shadow: 0 2px 0 var(--button-white-shadow), 0 3px 5px rgba(0,0,0,0.2); }
+
+    .pattern-length-section { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; width: 100%; }
+    .pattern-length-section label { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    
+    .pattern-controls-container { display: flex; align-items: center; gap: 15px; }
+    .pattern-length-section input {
+      width: 60px; padding: 10px; font-size: 18px; 
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px; text-align: center; background-color: rgba(0, 0, 0, 0.3);
+      color: var(--primary-color); transition: all 0.3s ease; -moz-appearance: textfield;
+    }
+    .pattern-length-section input::-webkit-outer-spin-button,
+    .pattern-length-section input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    .control-button {
+      padding: 12px 25px; /* Aumentado padding vertical e horizontal */
+      font-size: 22px; /* Aumentado fonte */
+      font-weight: bold; border: none; border-radius: 10px;
+      cursor: pointer; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+      transition: all 0.2s ease-out; position: relative;
+      background: linear-gradient(145deg, color-mix(in srgb, var(--button-control) 20%, white), var(--button-control));
+      box-shadow: 0 4px 0 var(--button-control-shadow), 0 6px 10px rgba(0,0,0,0.3);
+    }
+    .control-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 var(--button-control-shadow), 0 8px 15px rgba(0,0,0,0.4);
+        background: linear-gradient(145deg, color-mix(in srgb, var(--button-control-hover) 20%, white), var(--button-control-hover));
+        filter: brightness(1.1);
+     }
+    .control-button:active:not(:disabled) {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 var(--button-control-shadow), 0 3px 5px rgba(0,0,0,0.2);
+        filter: brightness(0.9);
+    }
+    .control-button:disabled { cursor: not-allowed; opacity: 0.6; filter: grayscale(50%); }
+
+
+    .counter { font-size: 1.1rem; text-align: center; font-weight: 300; width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+
+    .pattern-list { margin-top: 10px; width: 100%; display: flex; flex-direction: column; gap: 15px; }
+    .pattern {
+      padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px;
+      background-color: rgba(23, 23, 38, 0.8); backdrop-filter: blur(5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); line-height: 1.7; font-size: 0.95rem; 
+      animation: slideInUp 0.5s ease-out forwards; opacity: 0;
+      transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+    .pattern.highlighted { box-shadow: 0 0 15px 5px var(--button-red-color); transform: scale(1.02); }
+    .pattern:nth-child(1) { animation-delay: 0.05s; } .pattern:nth-child(2) { animation-delay: 0.1s; } .pattern:nth-child(3) { animation-delay: 0.15s; }
+    @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .pattern-header, .pattern-occurrences, .pattern-entries { margin-bottom: 12px; display: flex; align-items: center; }
+    .pattern-header span:first-child { margin-right: 8px; }
+    .pattern-occurrences span:first-child { margin-right: 8px; color: var(--secondary-color); font-weight: 300; }
+    .pattern-occurrences span:last-child { font-weight: 600; }
+    .pattern-sequence {
+      font-weight: bold; color: #82eefd; background-color: rgba(0,0,0,0.2);
+      padding: 4px 8px; border-radius: 5px; letter-spacing: 2px; 
+    }
+    .pattern-entries span:first-child { margin-right: 8px; color: var(--secondary-color); font-weight: 300; min-width: 90px; display: inline-block; }
+    .pattern-entry-item {
+      display: inline-block; font-weight: 600; padding: 4px 10px; border-radius: 5px;
+      margin-right: 15px; min-width: 120px; text-align: center;
+      background-color: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1);
+    }
+    .pattern-entry-item.red { color: var(--pattern-entry-red); }
+    .pattern-entry-item.black { color: var(--pattern-entry-black); }
+
+    .notification {
+      position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+      padding: 15px 25px; background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white; font-size: 1.1rem; font-weight: 600; border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4); z-index: 1000; text-align: center;
+      opacity: 0; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      white-space: pre-line; cursor: pointer; 
+    }
+    .notification.show { bottom: 20px; opacity: 1; }
+    .notification.glow-alert { animation: pulseAlert 1.5s infinite; }
+    @keyframes pulseAlert {
+        0% { box-shadow: 0 5px 20px rgba(0,0,0,0.4), 0 0 0 0 rgba(231,76,60,0.7); }
+        70% { box-shadow: 0 5px 20px rgba(0,0,0,0.4), 0 0 10px 15px rgba(231,76,60,0); }
+        100% { box-shadow: 0 5px 20px rgba(0,0,0,0.4), 0 0 0 0 rgba(231,76,60,0); }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      h1 { font-size: 2rem; margin-bottom: 15px; }
+      .glass-card { padding: 15px; width: 100%; }
+      #colorInput { font-size: 15px; padding: 10px 12px; }
+      #buttonContainer button { padding: 10px 8px; font-size: 18px; }
+      .control-button { padding: 10px 20px; font-size: 20px; } 
+      .pattern-controls-container { gap: 10px; }
+      .pattern-length-section label { font-size: 15px; margin-bottom: 5px; }
+      .pattern-length-section input { width: 50px; font-size: 16px; padding: 8px; }
+      .counter { font-size: 1rem; }
+      .pattern { font-size: 0.9rem; padding: 15px; } 
+      .notification { font-size: 1rem; padding: 12px 20px; width: 90%; }
+      .pattern-entry-item { min-width: 100px; padding: 4px 8px; margin-right: 10px;}
+    }
+     @media (max-width: 480px) {
+        h1 { font-size: 1.8rem; }
+        #buttonContainer { gap: 8px; }
+        #buttonContainer button { font-size: 16px; padding: 8px 5px; }
+        .control-button { font-size: 18px; padding: 8px 15px; } 
+        .pattern-controls-container { gap: 8px; } 
+        .pattern-length-section input { width: 45px; font-size: 16px; padding: 6px;}
+        .pattern-entries { flex-direction: column; align-items: flex-start; } 
+        .pattern-entry-item { margin-bottom: 8px; margin-right: 0; width: 100%;} 
+        .pattern-entries span:first-child { margin-bottom: 5px; }
+    }
+  </style>
+  
+  <script> if (window.history.replaceState) { window.history.replaceState(null, null, window.location.href); } </script>
+  <script> (function() { /* ... código de bloqueio de reload ... */ })(); </script>
+</head>
+<body>
+  <h1>NeuroScan - DOUBLE</h1>
+
+  <div class="main-container">
+
+    <div class="glass-card">
+      <div class="pattern-length-section">
+        <label for="patternLengthInput">Analisar padrão de (3-8 cores):</label>
+        <div class="pattern-controls-container">
+            <button id="decreasePattern" class="control-button">-</button>
+            <input type="number" id="patternLengthInput" min="3" max="8" value="6">
+            <button id="increasePattern" class="control-button">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card counter-card"> 
+        <div class="counter" id="counter">
+            Total de cores inseridas: 0
+        </div>
+    </div>
+
+    <div class="glass-card"> 
+      <div id="colorInputContainer">
+        <input type="text" id="colorInput" placeholder="Cores (🔴⚫⚪) - Use os botões ou cole aqui">
+      </div>
+    </div>
+    
+    <div class="glass-card">
+      <div id="buttonContainer"> 
+        <button id="redButton">🔴</button>
+        <button id="blackButton">⚫</button>
+        <button id="whiteButton">⚪</button>
+      </div>
+    </div>
+
+    <div class="pattern-list" id="patternList">
+      <!-- Padrões serão exibidos aqui -->
+    </div>
+  </div>
+
+  <div class="notification" id="notification" data-target-pattern-id=""> 
+    <!-- Notificação será exibida aqui -->
+  </div>
+
+  <script>
+    const colorInput = document.getElementById('colorInput');
+    const redButton = document.getElementById('redButton');
+    const blackButton = document.getElementById('blackButton');
+    const whiteButton = document.getElementById('whiteButton');
+    const patternLengthInput = document.getElementById('patternLengthInput');
+    const decreasePatternButton = document.getElementById('decreasePattern');
+    const increasePatternButton = document.getElementById('increasePattern');
+    const patternList = document.getElementById('patternList');
+    const notification = document.getElementById('notification');
+    const counterElement = document.getElementById('counter');
+
+    const VALID_EMOJIS_SET = new Set(['🔴', '⚫', '⚪']); 
+    const MIN_PATTERN_LENGTH = 3;
+    const MAX_PATTERN_LENGTH = 8;
+    const INACTIVITY_TIMEOUT_MS = 25 * 60 * 1000;
+    const MIN_COLORS_FOR_NOTIFICATION = 210; // Novo limite para notificações
+    let inactivityTimer;
+
+    // --- SANITIZE FUNCTIONS ---
+    function sanitizeEmojiString(inputString) {
+        if (typeof inputString !== 'string') return '';
+        const normalizedString = inputString.normalize('NFC');
+        return Array.from(normalizedString).filter(char => VALID_EMOJIS_SET.has(char)).join('');
+    }
+    function sanitizeColorsArray(colorsArray) {
+        if (!Array.isArray(colorsArray)) return [];
+        return colorsArray.map(color => sanitizeEmojiString(color)).filter(color => color !== '');
+    }
+    // --- END SANITIZE FUNCTIONS ---
+
+    let colors = [];
+    try {
+        const storedColorsRaw = JSON.parse(localStorage.getItem('colors'));
+        if (Array.isArray(storedColorsRaw)) { colors = sanitizeColorsArray(storedColorsRaw); }
+    } catch (e) { console.error("Erro ao carregar localStorage:", e); colors = []; }
+
+    const savedPatternLength = localStorage.getItem('patternLength') || "6";
+    patternLengthInput.value = parseInt(savedPatternLength); 
+
+
+    // --- INACTIVITY TIMER FUNCTIONS ---
+    function clearColorsDueToInactivity() {
+        console.log("Inatividade detectada. Limpando cores.");
+        colors = [];
+        colorInput.value = '';
+        updateCounter();
+        updatePatterns(); 
+        try { localStorage.removeItem('colors'); } 
+        catch (e) { console.error("Erro ao limpar 'colors' do localStorage por inatividade:", e); }
+    }
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(clearColorsDueToInactivity, INACTIVITY_TIMEOUT_MS);
+    }
+    // --- END INACTIVITY TIMER FUNCTIONS ---
+
+    function updateColors(rawColor) {
+      const color = sanitizeEmojiString(rawColor); 
+      if (!color) { return; }
+      
+      // Limite de 720 cores com rotação (remove o mais antigo)
+      if (colors.length >= 720) { 
+          colors.shift(); 
+      }
+      colors.push(color);
+
+      colorInput.value = colors.join(''); 
+      colorInput.scrollLeft = colorInput.scrollWidth;
+      updateCounter();
+      updatePatterns();
+      try { localStorage.setItem('colors', JSON.stringify(colors)); } 
+      catch (e) { console.error("Erro ao salvar cores:", e); }
+      resetInactivityTimer(); 
+    }
+
+    function updateCounter() { counterElement.textContent = `Total de cores inseridas: ${colors.length}`; }
+
+    redButton.addEventListener('click', (event) => { event.preventDefault(); updateColors('🔴'); });
+    blackButton.addEventListener('click', (event) => { event.preventDefault(); updateColors('⚫'); });
+    whiteButton.addEventListener('click', (event) => { event.preventDefault(); updateColors('⚪'); });
+    
+    colorInput.addEventListener('input', (event) => {
+      const rawValue = event.target.value;
+      const sanitizedValue = sanitizeEmojiString(rawValue);
+      
+      // Se o usuário colar/digitar mais de 720, precisamos truncar e possivelmente rotacionar.
+      // A forma mais simples é pegar os últimos 720 válidos.
+      let tempColorsArray = Array.from(sanitizedValue);
+      if (tempColorsArray.length > 720) {
+          tempColorsArray = tempColorsArray.slice(tempColorsArray.length - 720);
+      }
+      colors = tempColorsArray;
+
+      if (rawValue !== colors.join('')) { colorInput.value = colors.join(''); }
+      updateCounter(); updatePatterns();
+      try { localStorage.setItem('colors', JSON.stringify(colors)); }
+      catch (e) { console.error("Erro ao salvar cores (input):", e); }
+      resetInactivityTimer(); 
+    });
+
+    // --- PATTERN LENGTH CONTROL FUNCTIONS ---
+    function updatePatternLengthButtonsState() {
+        const currentValue = parseInt(patternLengthInput.value);
+        decreasePatternButton.disabled = currentValue <= MIN_PATTERN_LENGTH;
+        increasePatternButton.disabled = currentValue >= MAX_PATTERN_LENGTH;
+    }
+    function handlePatternLengthChange(newValue) {
+        let value = parseInt(newValue);
+        if (isNaN(value)) value = parseInt(localStorage.getItem('patternLength')) || 6; 
+        if (value < MIN_PATTERN_LENGTH) value = MIN_PATTERN_LENGTH;
+        if (value > MAX_PATTERN_LENGTH) value = MAX_PATTERN_LENGTH;
+        
+        patternLengthInput.value = value;
+        updatePatternLengthButtonsState();
+        try { localStorage.setItem('patternLength', value); }
+        catch (e) { console.error("Erro ao salvar patternLength:", e); }
+        updatePatterns();
+        resetInactivityTimer(); 
+    }
+
+    decreasePatternButton.addEventListener('click', () => {
+        let currentValue = parseInt(patternLengthInput.value);
+        handlePatternLengthChange(currentValue - 1);
+    });
+    increasePatternButton.addEventListener('click', () => {
+        let currentValue = parseInt(patternLengthInput.value);
+        handlePatternLengthChange(currentValue + 1);
+    });
+    patternLengthInput.addEventListener('change', () => { 
+        handlePatternLengthChange(patternLengthInput.value);
+    });
+    patternLengthInput.addEventListener('input', (event) => { 
+        updatePatternLengthButtonsState(); 
+        resetInactivityTimer();
+    });
+    // --- END PATTERN LENGTH CONTROL FUNCTIONS ---
+
+
+    // --- NOTIFICATION FUNCTIONS ---
+    let notificationTimeout;
+    let currentHighlightedPattern = null;
+    function showNotification(patternDisplayNumber, patternId) {
+      notification.textContent = `PADRÃO ${patternDisplayNumber} OCORREU ⚠\n(Clique para ver)`;
+      notification.setAttribute('data-target-pattern-id', patternId); 
+      notification.classList.add('show', 'glow-alert');
+
+      clearTimeout(notificationTimeout); 
+      notificationTimeout = setTimeout(() => {
+        notification.classList.remove('show', 'glow-alert');
+        notification.removeAttribute('data-target-pattern-id');
+      }, 14000);
+    }
+    notification.addEventListener('click', () => {
+        const targetPatternId = notification.getAttribute('data-target-pattern-id');
+        if (targetPatternId) {
+            const targetElement = document.getElementById(targetPatternId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if(currentHighlightedPattern && currentHighlightedPattern !== targetElement) {
+                    currentHighlightedPattern.classList.remove('highlighted');
+                }
+                targetElement.classList.add('highlighted');
+                currentHighlightedPattern = targetElement;
+                setTimeout(() => {
+                    targetElement.classList.remove('highlighted');
+                    if (currentHighlightedPattern === targetElement) {
+                        currentHighlightedPattern = null;
+                    }
+                }, 3000);
+            }
+        }
+        notification.classList.remove('show', 'glow-alert');
+        notification.removeAttribute('data-target-pattern-id');
+        clearTimeout(notificationTimeout);
+    });
+    // --- END NOTIFICATION FUNCTIONS ---
+
+
+    // --- PATTERN LOGIC FUNCTIONS ---
+    function getPatternOccurrences() {
+      const patternLength = parseInt(patternLengthInput.value); 
+      if (patternLength < MIN_PATTERN_LENGTH || patternLength > MAX_PATTERN_LENGTH) { return []; } 
+      const patternMap = new Map();
+      const currentColors = sanitizeColorsArray(colors); 
+
+      for (let i = 0; i <= currentColors.length - patternLength; i++) {
+        const patternKeySourceArray = currentColors.slice(i, i + patternLength);
+        const patternString = patternKeySourceArray.join(''); 
+        const finalSanitizedPatternString = sanitizeEmojiString(patternString); 
+        if (!finalSanitizedPatternString && patternString) { 
+            console.warn("[getPatternOccurrences] Discrepância sanitização:", 
+                         {original: patternString, sanitized: finalSanitizedPatternString});
+            continue; 
+        } else if (!finalSanitizedPatternString && !patternString) {
+             continue;
+        }
+
+        const nextColors = currentColors.slice(i + patternLength, i + patternLength + 2);
+        let redCount = 0, blackCount = 0;
+        nextColors.forEach(color => {
+          if (color === '🔴') redCount++; if (color === '⚫') blackCount++;
+        });
+        let voteRed = 0, voteBlack = 0;
+        if (redCount > blackCount) { voteRed = 1; } 
+        else if (blackCount > redCount) { voteBlack = 1; } 
+        else if (redCount === blackCount && redCount > 0) { voteRed = 0.5; voteBlack = 0.5; }
+
+        if (!patternMap.has(finalSanitizedPatternString)) {
+          patternMap.set(finalSanitizedPatternString, { count: 0, voteRed: 0, voteBlack: 0 });
+        }
+        const patternData = patternMap.get(finalSanitizedPatternString);
+        patternData.count++; patternData.voteRed += voteRed; patternData.voteBlack += voteBlack;
+      }
+      return Array.from(patternMap.entries())
+                  .sort((a, b) => b[1].count - a[1].count)
+                  .slice(0, 16);
+    }
+
+    function updatePatterns() {
+      const patternLength = parseInt(patternLengthInput.value); 
+      const patternsOccurrences = getPatternOccurrences(); 
+      patternList.innerHTML = ''; 
+      
+      if (patternsOccurrences.length === 0 && colors.length > 0 && colors.length >= patternLength) {
+          const noPatternElement = document.createElement('div');
+          noPatternElement.className = 'pattern'; 
+          noPatternElement.innerHTML = `Nenhum padrão de ${patternLength} cores encontrado ainda.`;
+          noPatternElement.style.animationDelay = `0s`; 
+          patternList.appendChild(noPatternElement);
+      } else {
+        patternsOccurrences.forEach(([patternStringKey, data], index) => { 
+            const patternDisplayNumber = index + 1;
+            const patternDomId = `pattern-item-${patternDisplayNumber}`; 
+            if (!patternStringKey) {
+                console.warn(`[updatePatterns] Chave padrão vazia: ${patternDisplayNumber}.`);
+                return;
+            }
+
+            const totalVotes = data.voteRed + data.voteBlack;
+            let percentRed = 0, percentBlack = 0;
+            if (totalVotes > 0) {
+              percentRed = (data.voteRed / totalVotes) * 100;
+              percentBlack = (data.voteBlack / totalVotes) * 100;
+            }
+            const patternElement = document.createElement('div');
+            patternElement.className = 'pattern';
+            patternElement.id = patternDomId; 
+
+            let entryLabel = "ENTRADAS:"; 
+            let entryDetailsHTML = "";
+
+            if (data.count >= 2) { 
+                if (percentRed > 0 || percentBlack > 0) {
+                    entryDetailsHTML = `
+                        <span class="pattern-entry-item red">( 🔴 ${percentRed.toFixed(1)}% )</span>
+                        <span class="pattern-entry-item black">( ⚫ ${percentBlack.toFixed(1)}% )</span>
+                    `;
+                } else {
+                     entryDetailsHTML = `<span style="font-style: italic; color: var(--secondary-color);">Sem votos suficientes.</span>`;
+                }
+            } else {
+                entryLabel = "OCORRÊNCIAS:"; 
+                entryDetailsHTML = `<span style="font-style: italic; color: var(--secondary-color);">Aguardando mais.</span>`;
+            }
+            
+            const displayablePattern = Array.from(patternStringKey).join(' ');
+
+            patternElement.innerHTML = `
+                <div class="pattern-header">
+                    <span><strong>PADRÃO ${patternDisplayNumber}:</strong></span>
+                    <span class="pattern-sequence">( ${displayablePattern} )</span>
+                </div>
+                <div class="pattern-occurrences">
+                    <span>OCORRÊNCIAS :</span>
+                    <span>${data.count}</span>
+                </div>
+                <div class="pattern-entries">
+                    <span>${entryLabel}</span>
+                    <div>${entryDetailsHTML}</div>
+                </div>
+            `;
+            
+            patternElement.style.animationDelay = `${index * 0.05}s`; 
+            patternList.appendChild(patternElement);
+
+            const lastPatternRaw = sanitizeEmojiString(Array.from(colors).slice(-patternLength).join(''));
+            
+            // Alteração para limite mínimo de 210 cores para notificações
+            if (colors.length >= MIN_COLORS_FOR_NOTIFICATION && 
+                lastPatternRaw === patternStringKey && 
+                data.count >= 2 && 
+                ( (percentRed >= 70 && percentBlack <= 30) || (percentBlack >= 70 && percentRed <= 30) )
+            ) {
+              showNotification(patternDisplayNumber, patternDomId); 
+            }
+        });
+      }
+    }
+    // --- END PATTERN LOGIC FUNCTIONS ---
+
+    // --- INITIALIZATION ---
+    colorInput.value = colors.join('');
+    updateCounter();
+    handlePatternLengthChange(patternLengthInput.value); 
+    if (colors.length > 0) { 
+        resetInactivityTimer();
+    }
+    // --- END INITIALIZATION ---
+  </script>
+</body>
+</html>
