@@ -290,7 +290,7 @@
     const MIN_PATTERN_LENGTH = 3;
     const MAX_PATTERN_LENGTH = 8;
     const INACTIVITY_TIMEOUT_MS = 25 * 60 * 1000;
-    const MIN_COLORS_FOR_NOTIFICATION = 210; // Novo limite para notificações
+    const MIN_COLORS_FOR_NOTIFICATION = 210; 
     let inactivityTimer;
 
     // --- SANITIZE FUNCTIONS ---
@@ -335,7 +335,6 @@
       const color = sanitizeEmojiString(rawColor); 
       if (!color) { return; }
       
-      // Limite de 720 cores com rotação (remove o mais antigo)
       if (colors.length >= 720) { 
           colors.shift(); 
       }
@@ -360,8 +359,6 @@
       const rawValue = event.target.value;
       const sanitizedValue = sanitizeEmojiString(rawValue);
       
-      // Se o usuário colar/digitar mais de 720, precisamos truncar e possivelmente rotacionar.
-      // A forma mais simples é pegar os últimos 720 válidos.
       let tempColorsArray = Array.from(sanitizedValue);
       if (tempColorsArray.length > 720) {
           tempColorsArray = tempColorsArray.slice(tempColorsArray.length - 720);
@@ -451,9 +448,20 @@
         clearTimeout(notificationTimeout);
     });
     // --- END NOTIFICATION FUNCTIONS ---
-
-
+    
     // --- PATTERN LOGIC FUNCTIONS ---
+    
+    // <-- NOVO: Função para gerar um ID estável a partir da string do padrão
+    function generateStablePatternId(patternString) {
+      if (!patternString) return '';
+      // Converte emojis em caracteres simples para criar um ID válido e estável
+      const safeId = patternString
+        .replace(/🔴/g, 'r')
+        .replace(/⚫/g, 'b')
+        .replace(/⚪/g, 'w');
+      return `pattern-dom-${safeId}`;
+    }
+
     function getPatternOccurrences() {
       const patternLength = parseInt(patternLengthInput.value); 
       if (patternLength < MIN_PATTERN_LENGTH || patternLength > MAX_PATTERN_LENGTH) { return []; } 
@@ -507,9 +515,11 @@
       } else {
         patternsOccurrences.forEach(([patternStringKey, data], index) => { 
             const patternDisplayNumber = index + 1;
-            const patternDomId = `pattern-item-${patternDisplayNumber}`; 
-            if (!patternStringKey) {
-                console.warn(`[updatePatterns] Chave padrão vazia: ${patternDisplayNumber}.`);
+            // <-- ALTERADO: Usa a nova função para gerar um ID estável.
+            const patternDomId = generateStablePatternId(patternStringKey); 
+
+            if (!patternStringKey || !patternDomId) { // Adicionada verificação para o ID
+                console.warn(`[updatePatterns] Chave de padrão ou ID inválida: ${patternDisplayNumber}.`);
                 return;
             }
 
@@ -562,13 +572,12 @@
 
             const lastPatternRaw = sanitizeEmojiString(Array.from(colors).slice(-patternLength).join(''));
             
-            // Alteração para limite mínimo de 210 cores para notificações
             if (colors.length >= MIN_COLORS_FOR_NOTIFICATION && 
                 lastPatternRaw === patternStringKey && 
                 data.count >= 2 && 
                 ( (percentRed >= 70 && percentBlack <= 30) || (percentBlack >= 70 && percentRed <= 30) )
             ) {
-              showNotification(patternDisplayNumber, patternDomId); 
+              showNotification(patternDisplayNumber, patternDomId); // Envia o ID estável para a notificação
             }
         });
       }
